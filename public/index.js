@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const username = document.getElementById("registerUsername").value;
     const password = document.getElementById("registerPassword").value;
 
-    const response = await fetch("/register", {
+    const response = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      fetch("/upload", {
+      fetch("/api/upload", {
         method: "POST",
         headers: {
          Authorization: `Bearer ${token}`,

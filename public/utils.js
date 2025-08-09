@@ -19,7 +19,7 @@ function checkUserLoggedIn() {
   }
 }
 function logout(socket) {
-  fetch("/logout", {
+  fetch("/api/logout", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -62,7 +62,7 @@ async function login(socket, isRegister = false) {
     password = document.getElementById("loginPassword").value;
   }
 
-  const response = await fetch("/login", {
+  const response = await fetch("/api/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -131,7 +131,7 @@ function initiateWebsocketConnection(socket) {
 async function downloadFile(url) {
   const token = localStorage.getItem("accessToken");
   try {
-    const response = await fetch(url, {
+    const response = await fetch("/api"+ url, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -158,7 +158,7 @@ async function downloadFile(url) {
 async function deleteFile(button, filename) {
   const token = localStorage.getItem("accessToken");
   const filesListDiv = document.getElementById("filesList");
-  const response = await fetch("/delete", {
+  const response = await fetch("/api/delete", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -213,7 +213,7 @@ function uploadImageFromClipboard(shareButton) {
               const formData = new FormData();
               formData.append("file", blob, `clipboard_image_${Date.now()}.png`);
 
-              fetch("/upload", {
+              fetch("/api/upload", {
                 method: "POST",
                 headers: {
                   Authorization: `Bearer ${token}`,
