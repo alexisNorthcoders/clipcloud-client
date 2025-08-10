@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleLoginPassword = document.getElementById("toggleLoginPassword");
   const toggleRegisterPassword = document.getElementById("toggleRegisterPassword");
   const buttonMessageP = document.getElementById("buttonMessage");
-  
+
 
   toggleLoginPassword.addEventListener("click", () => {
     toggle("loginPassword", "showLogin", "hideLogin");
@@ -26,11 +26,28 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle("registerPassword", "showRegister", "hideRegister");
   });
 
+  (function handleMagicLinkLogin() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      localStorage.setItem("accessToken", token);
+
+      authForms.style.display = "none";
+      logoutButton.style.display = "flex";
+
+      window.history.replaceState({}, document.title, "/");
+
+      socket = initiateWebsocketConnection(socket, token);
+
+    }
+  })();
+
   let isUserLoggedIn = checkUserLoggedIn();
 
-  if (isUserLoggedIn) {
+  if (isUserLoggedIn && !socket) {
     socket = initiateWebsocketConnection(socket);
-    }
+  }
 
   loginButton.addEventListener("click", () => login(socket).then((updatedSocket) => (socket = updatedSocket)));
   logoutButton.addEventListener("click", () => logout(socket));
@@ -49,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (response.ok) {
-      login(socket,true).then((updatedSocket) => (socket = updatedSocket));
+      login(socket, true).then((updatedSocket) => (socket = updatedSocket));
     } else {
       const registerError = document.getElementById("registerError");
       registerError.classList.remove("hidden");
@@ -80,13 +97,13 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch("/api/upload", {
         method: "POST",
         headers: {
-         Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       })
         .then((response) => {
           if (!response.ok) {
-            
+
             throw new Error("Network response was not ok");
           }
           return response.json();

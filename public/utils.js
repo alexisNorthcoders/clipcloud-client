@@ -81,12 +81,18 @@ async function login(socket, isRegister = false) {
     console.error("Failed to log in!");
   }
 }
-function initiateWebsocketConnection(socket) {
+function initiateWebsocketConnection(socket, token) {
   const textarea = document.getElementById("clipboard");
   const filesListDiv = document.getElementById("filesList");
   const welcomeMessage = document.getElementById("welcome");
-
-  socket = io();
+  if (token) {
+    socket = io({
+      auth: { token }
+    })
+  }
+  else {
+    socket = io();
+  }
 
   socket.on("connect", () => {
     console.log("user connected");
