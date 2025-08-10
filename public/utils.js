@@ -115,15 +115,26 @@ function initiateWebsocketConnection(socket) {
       filesListDiv.innerHTML = files
         .map(
           (file) => `
-          <div class="grid grid-cols-[auto,1fr,auto,auto] items-center justify-between gap-1 overflow-text w-fit">
-            <button onclick="downloadFile('${file.url}')" class="btn btn-lightgray inline-flex gap-2 w-fit"><img src="./assets/download.svg" class="h-6 w-6" alt="download icon"/></button>
-            <a href="${file.url}" target="_blank" class="text-blue-800 font-bold hover:underline overflow-text">${file.name}</a>
-            <span class="overflow-text">${(file.size / 1024).toFixed(2)}KB</span>
-            <button onclick="deleteFile(this,'${file.name}')" class="btn btn-red inline-flex gap-2 w-fit self-end"><img src="./assets/delete.svg" class="h-6 w-6" alt="download icon"/></button>
-          </div>
-        `
+        <div class="grid grid-cols-[auto,1fr,auto,auto] items-center justify-between gap-1 overflow-text w-fit">
+          <button data-url="${encodeURIComponent(file.url)}" class="download-btn btn btn-lightgray inline-flex gap-2 w-fit">
+            <img src="./assets/download.svg" class="h-6 w-6" alt="download icon"/>
+          </button>
+          <a href="${encodeURIComponent(file.url)}" target="_blank" class="text-blue-800 font-bold hover:underline overflow-text">${file.name}</a>
+          <span class="overflow-text">${(file.size / 1024).toFixed(2)}KB</span>
+          <button onclick="deleteFile(this,'${file.name.replace(/'/g, "\\'")}')" class="btn btn-red inline-flex gap-2 w-fit self-end">
+            <img src="./assets/delete.svg" class="h-6 w-6" alt="download icon"/>
+          </button>
+        </div>
+      `
         )
         .join("");
+
+      filesListDiv.querySelectorAll(".download-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const url = decodeURIComponent(btn.dataset.url);
+          downloadFile(url);
+        });
+      });
     }
   });
   return socket;
@@ -131,7 +142,7 @@ function initiateWebsocketConnection(socket) {
 async function downloadFile(url) {
   const token = localStorage.getItem("accessToken");
   try {
-    const response = await fetch("/api"+ url, {
+    const response = await fetch("/api" + url, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
